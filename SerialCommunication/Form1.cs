@@ -130,19 +130,51 @@ namespace SerialCommunication
         {
             try
             {
+                System.Threading.Thread.Sleep(2000); // Wacht 2 seconden zodat Arduino kan opstarten
                 serialPortArduino.WriteLine("ping");
                 string response = serialPortArduino.ReadLine();
-                return response != null && response.Trim().Equals("pong", StringComparison.OrdinalIgnoreCase);
+                
+                if (response != null && response.Trim().Equals("pong", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else
+                {
+                    labelStatus.Text = $"Fout: Arduino antwoordde onverwacht: '{response}'";
+                    return false;
+                }
             }
             catch (TimeoutException)
             {
-                labelStatus.Text = "Fout: Arduino reageert niet (timeout).";
+                labelStatus.Text = "Fout: Arduino reageert niet (timeout). Controleer of sketch 'ping' ondersteunt.";
                 return false;
             }
             catch (Exception ex)
             {
                 labelStatus.Text = $"Fout: {ex.Message}";
                 return false;
+            }
+        }
+
+        private void checkBoxDigital2_Checked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    labelStatus.Text = "Fout: Geen seriële verbinding geopend.";
+                    checkBoxDigital2.Checked = false;
+                    return;
+                }
+
+                string command = checkBoxDigital2.Checked ? "set d2 high" : "set d2 low";
+                serialPortArduino.WriteLine(command);
+                labelStatus.Text = $"Commando verstuurd: {command}";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout: {ex.Message}";
+                checkBoxDigital2.Checked = false;
             }
         }
     }
