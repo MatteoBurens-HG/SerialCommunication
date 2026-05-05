@@ -29,6 +29,9 @@ namespace SerialCommunication
                 if (comboBoxPoort.Items.Count > 0) comboBoxPoort.SelectedIndex = 0;
 
                 comboBoxBaudrate.SelectedIndex = comboBoxBaudrate.Items.IndexOf("115200");
+
+                buttonConnect.BackColor = Color.Blue;
+                buttonConnect.ForeColor = Color.White;
             }
             catch (Exception)
             { }
