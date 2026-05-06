@@ -38,6 +38,11 @@ namespace SerialCommunication
 
                 buttonConnect.BackColor = Color.Blue;
                 buttonConnect.ForeColor = Color.White;
+
+                // Subscribe to trackbar scroll events for PWM controls
+                trackBarPWM9.Scroll += trackBarPWM9_Scroll;
+                trackBarPWM10.Scroll += trackBarPWM10_Scroll;
+                trackBarPWM11.Scroll += trackBarPWM11_Scroll;
             }
             catch (Exception)
             { }
@@ -221,6 +226,69 @@ namespace SerialCommunication
             {
                 labelStatus.Text = $"Fout: {ex.Message}";
                 checkBoxDigital4.Checked = false;
+            }
+        }
+
+        private void trackBarPWM9_Scroll(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    labelStatus.Text = "Fout: Geen seriële verbinding geopend.";
+                    return;
+                }
+
+                int pwmValue = trackBarPWM9.Value;
+                string command = $"set pwm9 {pwmValue}";
+                serialPortArduino.WriteLine(command);
+                labelStatus.Text = $"Commando verstuurd: {command}";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout: {ex.Message}";
+            }
+        }
+
+        private void trackBarPWM10_Scroll(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    labelStatus.Text = "Fout: Geen seriële verbinding geopend.";
+                    return;
+                }
+
+                int pwmValue = trackBarPWM10.Value;
+                string command = $"set pwm10 {pwmValue}";
+                serialPortArduino.WriteLine(command);
+                labelStatus.Text = $"Commando verstuurd: {command}";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout: {ex.Message}";
+            }
+        }
+
+        private void trackBarPWM11_Scroll(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    labelStatus.Text = "Fout: Geen seriële verbinding geopend.";
+                    return;
+                }
+
+                int pwmValue = trackBarPWM11.Value;
+                string command = $"set pwm11 {pwmValue}";
+                serialPortArduino.WriteLine(command);
+                labelStatus.Text = $"Commando verstuurd: {command}";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout: {ex.Message}";
             }
         }
     }
