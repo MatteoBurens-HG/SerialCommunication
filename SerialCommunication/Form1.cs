@@ -96,8 +96,8 @@ namespace SerialCommunication
                     else if (radioButtonHandshakeRTS.Checked) serialPortArduino.Handshake = Handshake.RequestToSend;
                     else serialPortArduino.Handshake = Handshake.None;
 
-                    serialPortArduino.DtrEnable = checkBoxDtrEnable.Checked;
-                    serialPortArduino.RtsEnable = checkBoxRtsEnable.Checked;
+                    serialPortArduino.DtrEnable = true;
+                    serialPortArduino.RtsEnable = true;
 
                     serialPortArduino.Open();
 
@@ -130,7 +130,7 @@ namespace SerialCommunication
         {
             try
             {
-                System.Threading.Thread.Sleep(2000); // Wacht 2 seconden zodat Arduino kan opstarten
+                System.Threading.Thread.Sleep(3500); // Wacht 3.5 seconden zodat Arduino bootloader kan opstarten
                 serialPortArduino.WriteLine("ping");
                 string response = serialPortArduino.ReadLine();
                 
