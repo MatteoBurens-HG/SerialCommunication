@@ -208,7 +208,7 @@ namespace SerialCommunication
 
         private void checkBoxDigital4_CheckedChanged(object sender, EventArgs e)
         {
-            //yty
+            
             try
             {
                 if (!serialPortArduino.IsOpen)
