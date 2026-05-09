@@ -291,5 +291,95 @@ namespace SerialCommunication
                 labelStatus.Text = $"Fout: {ex.Message}";
             }
         }
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tabControl.SelectedTab == tabControl.TabPages["tabPageOefening3"])
+                {
+                    timerOefening3.Enabled = true;
+                }
+                else
+                {
+                    timerOefening3.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout: {ex.Message}";
+            }
+        }
+
+        private void timerOefening3_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    return;
+                }
+
+                // Clear any existing data
+                if (serialPortArduino.BytesToRead > 0)
+                {
+                    serialPortArduino.ReadExisting();
+                }
+
+                // Query and display digital pin 5
+                serialPortArduino.WriteLine("get d5");
+                string response5 = ReadSerialResponse();
+                if (response5 != null)
+                {
+                    response5 = response5.Trim();
+                    radioButtonDigital5.Checked = response5.Equals("1");
+                }
+
+                // Query and display digital pin 6
+                serialPortArduino.WriteLine("get d6");
+                string response6 = ReadSerialResponse();
+                if (response6 != null)
+                {
+                    response6 = response6.Trim();
+                    radioButtonDigital6.Checked = response6.Equals("1");
+                }
+
+                // Query and display digital pin 7
+                serialPortArduino.WriteLine("get d7");
+                string response7 = ReadSerialResponse();
+                if (response7 != null)
+                {
+                    response7 = response7.Trim();
+                    radioButtonDigital7.Checked = response7.Equals("1");
+                }
+            }
+            catch (TimeoutException)
+            {
+                labelStatus.Text = "Fout: Arduino antwoord timeout (geen respons van digitale pinnen)";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = $"Fout timer oefening 3: {ex.Message}";
+            }
+        }
+
+        private string ReadSerialResponse()
+        {
+            try
+            {
+                // Wait a bit for response
+                System.Threading.Thread.Sleep(50);
+                
+                if (serialPortArduino.BytesToRead > 0)
+                {
+                    return serialPortArduino.ReadLine();
+                }
+                return null;
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
+        }
     }
 }
