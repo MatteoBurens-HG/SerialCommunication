@@ -416,11 +416,12 @@ namespace SerialCommunication
                 }
 
                 // Query and display analog pin 0
-                serialPortArduino.WriteLine("a0");
+                serialPortArduino.WriteLine("get a0");
                 string response = ReadSerialResponse();
                 if (response != null)
                 {
                     response = response.Trim();
+                    response = response.Replace("a0:", "").Trim();
                     labelAnalog0.Text = response;
                 }
             }
