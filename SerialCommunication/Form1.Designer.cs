@@ -870,6 +870,11 @@
             this.timerOefening3.Interval = 1000;
             this.timerOefening3.Tick += new System.EventHandler(this.timerOefening3_Tick);
             // 
+            // timerOefening4
+            // 
+            this.timerOefening4.Interval = 1000;
+            this.timerOefening4.Tick += new System.EventHandler(this.timerOefening4_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);

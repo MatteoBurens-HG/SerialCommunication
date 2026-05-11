@@ -20,6 +20,12 @@ namespace SerialCommunication
             WriteTimeout = 1000
         };
 
+        private System.Windows.Forms.Timer timerOefening4 = new System.Windows.Forms.Timer()
+        {
+            Interval = 1000,
+            Enabled = false
+        };
+
         public Form1()
         {
             InitializeComponent();
@@ -43,6 +49,9 @@ namespace SerialCommunication
                 trackBarPWM9.Scroll += trackBarPWM9_Scroll;
                 trackBarPWM10.Scroll += trackBarPWM10_Scroll;
                 trackBarPWM11.Scroll += trackBarPWM11_Scroll;
+
+                // Subscribe to timer events
+                timerOefening4.Tick += timerOefening4_Tick;
             }
             catch (Exception)
             { }
@@ -127,7 +136,7 @@ namespace SerialCommunication
                 if (serialPortArduino.IsOpen) serialPortArduino.Close();
                 radioButtonVerbonden.Checked = false;
                 buttonConnect.Text = "Connect";
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
             }
         }
 
@@ -145,7 +154,7 @@ namespace SerialCommunication
                 }
                 else
                 {
-                    labelStatus.Text = $"Fout: Arduino antwoordde onverwacht: '{response}'";
+                    labelStatus.Text = "Fout: Arduino antwoordde onverwacht: '" + response + "'";
                     return false;
                 }
             }
@@ -156,7 +165,7 @@ namespace SerialCommunication
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
                 return false;
             }
         }
@@ -174,11 +183,11 @@ namespace SerialCommunication
 
                 string command = checkBoxDigital2.Checked ? "set d2 high" : "set d2 low";
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
                 checkBoxDigital2.Checked = false;
             }
         }
@@ -197,11 +206,11 @@ namespace SerialCommunication
 
                 string command = checkBoxDigital3.Checked ? "set d3 high" : "set d3 low";
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
                 checkBoxDigital3.Checked = false;
             }
         }
@@ -220,11 +229,11 @@ namespace SerialCommunication
 
                 string command = checkBoxDigital4.Checked ? "set d4 high" : "set d4 low";
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
                 checkBoxDigital4.Checked = false;
             }
         }
@@ -240,13 +249,13 @@ namespace SerialCommunication
                 }
 
                 int pwmValue = trackBarPWM9.Value;
-                string command = $"set pwm9 {pwmValue}";
+                string command = "set pwm9 " + pwmValue;
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
             }
         }
 
@@ -261,13 +270,13 @@ namespace SerialCommunication
                 }
 
                 int pwmValue = trackBarPWM10.Value;
-                string command = $"set pwm10 {pwmValue}";
+                string command = "set pwm10 " + pwmValue;
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
             }
         }
 
@@ -282,13 +291,13 @@ namespace SerialCommunication
                 }
 
                 int pwmValue = trackBarPWM11.Value;
-                string command = $"set pwm11 {pwmValue}";
+                string command = "set pwm11 " + pwmValue;
                 serialPortArduino.WriteLine(command);
-                labelStatus.Text = $"Commando verstuurd: {command}";
+                labelStatus.Text = "Commando verstuurd: " + command;
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
             }
         }
 
@@ -304,10 +313,19 @@ namespace SerialCommunication
                 {
                     timerOefening3.Enabled = false;
                 }
+
+                if (tabControl.SelectedTab == tabControl.TabPages["tabPageOefening4"])
+                {
+                    timerOefening4.Enabled = true;
+                }
+                else
+                {
+                    timerOefening4.Enabled = false;
+                }
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout: {ex.Message}";
+                labelStatus.Text = "Fout: " + ex.Message;
             }
         }
 
@@ -359,7 +377,7 @@ namespace SerialCommunication
             }
             catch (Exception ex)
             {
-                labelStatus.Text = $"Fout timer oefening 3: {ex.Message}";
+                labelStatus.Text = "Fout timer oefening 3: " + ex.Message;
             }
         }
 
@@ -379,6 +397,40 @@ namespace SerialCommunication
             catch (TimeoutException)
             {
                 return null;
+            }
+        }
+
+        private void timerOefening4_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    return;
+                }
+
+                // Clear any existing data
+                if (serialPortArduino.BytesToRead > 0)
+                {
+                    serialPortArduino.ReadExisting();
+                }
+
+                // Query and display analog pin 0
+                serialPortArduino.WriteLine("a0");
+                string response = ReadSerialResponse();
+                if (response != null)
+                {
+                    response = response.Trim();
+                    labelAnalog0.Text = response;
+                }
+            }
+            catch (TimeoutException)
+            {
+                labelStatus.Text = "Fout: Arduino antwoord timeout (geen respons van analog0)";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = "Fout timer oefening 4: " + ex.Message;
             }
         }
     }
