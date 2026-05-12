@@ -26,6 +26,12 @@ namespace SerialCommunication
             Enabled = false
         };
 
+        private System.Windows.Forms.Timer timerOefening5 = new System.Windows.Forms.Timer()
+        {
+            Interval = 1000,
+            Enabled = false
+        };
+
         public Form1()
         {
             InitializeComponent();
@@ -52,6 +58,7 @@ namespace SerialCommunication
 
                 // Subscribe to timer events
                 timerOefening4.Tick += timerOefening4_Tick;
+                timerOefening5.Tick += timerOefening5_Tick;
             }
             catch (Exception)
             { }
@@ -322,6 +329,15 @@ namespace SerialCommunication
                 {
                     timerOefening4.Enabled = false;
                 }
+
+                if (tabControl.SelectedTab == tabControl.TabPages["tabPageOefening5"])
+                {
+                    timerOefening5.Enabled = true;
+                }
+                else
+                {
+                    timerOefening5.Enabled = false;
+                }
             }
             catch (Exception ex)
             {
@@ -432,6 +448,91 @@ namespace SerialCommunication
             catch (Exception ex)
             {
                 labelStatus.Text = "Fout timer oefening 4: " + ex.Message;
+            }
+        }
+
+        private double GetDesiredTemperature(int rawValue)
+        {
+            // Scale 0..1023 to 5..45 °C
+            double scaledValue = (rawValue / 1023.0) * 40 + 5;
+            return Math.Round(scaledValue, 1);
+        }
+
+        private double GetCurrentTemperature(int rawValue)
+        {
+            // Scale 0..1023 to 0..500 °C
+            double scaledValue = (rawValue / 1023.0) * 500;
+            return Math.Round(scaledValue, 1);
+        }
+
+        private void timerOefening5_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!serialPortArduino.IsOpen)
+                {
+                    labelGewensteTemp.Text = "N/A";
+                    labelHuidigeTemp.Text = "N/A";
+                    return;
+                }
+
+                // Clear any existing data
+                if (serialPortArduino.BytesToRead > 0)
+                {
+                    serialPortArduino.ReadExisting();
+                }
+
+                // Read desired temperature from analog pin 0
+                serialPortArduino.WriteLine("get a0");
+                string responseA0 = ReadSerialResponse();
+                double desiredTemp = 0;
+                if (responseA0 != null)
+                {
+                    responseA0 = responseA0.Trim();
+                    responseA0 = responseA0.Replace("a0:", "").Trim();
+                    if (int.TryParse(responseA0, out int rawA0))
+                    {
+                        desiredTemp = GetDesiredTemperature(rawA0);
+                        labelGewensteTemp.Text = string.Format("{0:F1} °C", desiredTemp);
+                    }
+                }
+
+                // Read current temperature from analog pin 1
+                serialPortArduino.WriteLine("get a1");
+                string responseA1 = ReadSerialResponse();
+                double currentTemp = 0;
+                if (responseA1 != null)
+                {
+                    responseA1 = responseA1.Trim();
+                    responseA1 = responseA1.Replace("a1:", "").Trim();
+                    if (int.TryParse(responseA1, out int rawA1))
+                    {
+                        currentTemp = GetCurrentTemperature(rawA1);
+                        labelHuidigeTemp.Text = string.Format("{0:F1} °C", currentTemp);
+                    }
+                }
+
+                // Control LED: turn on if current temp < desired temp
+                if (currentTemp < desiredTemp)
+                {
+                    serialPortArduino.WriteLine("set d2 high");
+                }
+                else
+                {
+                    serialPortArduino.WriteLine("set d2 low");
+                }
+            }
+            catch (TimeoutException)
+            {
+                labelStatus.Text = "Fout: Arduino antwoord timeout (geen respons van thermostaat sensoren)";
+                labelGewensteTemp.Text = "N/A";
+                labelHuidigeTemp.Text = "N/A";
+            }
+            catch (Exception ex)
+            {
+                labelStatus.Text = "Fout timer oefening 5: " + ex.Message;
+                labelGewensteTemp.Text = "N/A";
+                labelHuidigeTemp.Text = "N/A";
             }
         }
     }
